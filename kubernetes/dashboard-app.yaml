@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-deployment
+  labels:
+    app: dashboard
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+        tier: frontend
+    spec:
+      tolerations:                    # Allow scheduling on spot nodes
+      - key: spot-instance
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+      containers:
+        - name: dashboard
+          image: busybox:latest         # Lightweight container
+          ports:
+            - containerPort: 8080
+          command: 
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting Dashboard Service..."
+              while true; do
+                echo "Dashboard running on port 8080"
+                sleep 30
+              done
+          env:
+            - name: DASHBOARD_NAME
+              value: "Admin Dashboard"
+            - name: DB_CONNECTION
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-user
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "25m"
+            limits:
+              memory: "64Mi"
+              cpu: "50m"
+
+---
+# Service for dashboard deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-service
+spec:
+  type: ClusterIP                     # Changed to ClusterIP for internal access via gateway
+  selector:
+    app: dashboard
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

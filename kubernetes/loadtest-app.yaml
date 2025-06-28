@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadtest-deployment
+  labels:
+    app: loadtest
+    tier: testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadtest
+  template:
+    metadata:
+      labels:
+        app: loadtest
+        tier: testing
+    spec:
+      tolerations:                    # Allow scheduling on spot nodes
+      - key: spot-instance
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+      containers:
+        - name: loadtest
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          env:
+            - name: TEST_TYPE
+              value: "Load Testing"
+            - name: TARGET_SERVICES
+              value: "frontend,api,dashboard,webapp"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+
+---
+# Service for load testing
+apiVersion: v1
+kind: Service
+metadata:
+  name: loadtest-service
+spec:
+  type: ClusterIP                     # Changed to ClusterIP for internal access via gateway
+  selector:
+    app: loadtest
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

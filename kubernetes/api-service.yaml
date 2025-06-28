@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels:
+    app: api-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-service
+  template:
+    metadata:
+      labels:
+        app: api-service
+        tier: backend
+    spec:
+      tolerations:                    # Allow scheduling on spot nodes
+      - key: spot-instance
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+      containers:
+        - name: api-service
+          image: httpd:alpine           # Apache web server for API simulation
+          ports:
+            - containerPort: 80
+          env:
+            - name: SERVICE_NAME
+              value: "API Service"
+            - name: SERVICE_TYPE
+              value: "REST API"
+            - name: BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-config
+                  key: mongo-url
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+
+---
+# Service for API deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+spec:
+  type: ClusterIP                     # Internal service
+  selector:
+    app: api-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80

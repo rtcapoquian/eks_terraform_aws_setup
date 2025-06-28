@@ -1,0 +1,98 @@
+# Sample Kubernetes manifests for testing your EKS cluster
+
+# Namespace for our demo application
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-app
+  labels:
+    name: demo-app
+
+---
+# Simple nginx deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: demo-app
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+
+---
+# Service to expose the nginx deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: demo-app
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+---
+# Spot instance tolerant deployment example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spot-nginx-deployment
+  namespace: demo-app
+  labels:
+    app: spot-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spot-nginx
+  template:
+    metadata:
+      labels:
+        app: spot-nginx
+    spec:
+      # This deployment can run on spot instances
+      tolerations:
+      - key: "spot-instance"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      # Prefer spot instances
+      nodeSelector:
+        NodeType: "spot"
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "25m"
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
