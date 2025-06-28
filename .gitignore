@@ -1,0 +1,45 @@
+# Terraform state and backup files
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+
+# Local .terraform directories
+.terraform/
+
+# Terraform plan output
+*.tfplan
+
+# Sensitive output files
+*.zip
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Python cache and virtualenv
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.code-workspace
+
+# Archive and build artifacts
+lambda_failover.zip
+
+# Logs
+*.log
+
+# Ignore user data scripts if customized
+user_data.sh
+.terraform.lock.hcl
