@@ -1,12 +1,57 @@
-# Terraform state and backup files
+# Terraform files
 *.tfstate
 *.tfstate.*
-crash.log
-*.tfvars
-*.tfvars.json
-
-# Local .terraform directories
+*.tfplan
+*.tfplan.*
 .terraform/
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+crash.log
+
+# Sensitive files - KEEP terraform.tfvars.example for reference
+terraform.tfvars
+*.auto.tfvars
+*.auto.tfvars.json
+secrets.tf
+secrets.yaml
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+
+# Kubeconfig files (if stored locally)
+kubeconfig*
+*.kubeconfig
+
+# Backup files
+*.backup
+*.bak
+*.orig
 
 # Terraform plan output
 *.tfplan
